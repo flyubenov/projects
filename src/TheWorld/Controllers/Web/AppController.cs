@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using TheWorld.Models;
 using TheWorld.Services;
 using TheWorld.ViewModels;
+using TheWorld.Models;
 
 namespace TheWorld.Controllers.Web
 {
@@ -42,12 +43,31 @@ namespace TheWorld.Controllers.Web
             {
                 _loger.LogError(ex.ToString());
                 return Redirect("/error ");
-            }
-
-
-            
+            }            
         }
-        
+
+        public IActionResult DynamicMenu()
+        {
+            var generatedMenu = GetMenu();
+            var vm = new DynamicMenuViewModel() { menu = generatedMenu };
+            return View(vm);
+        }
+
+        private Menu GetMenu()
+        {
+            var menu = new Menu();
+            var menuItems = new List<MenuItem>();
+            menuItems.Add(new MenuItem() { LinkText = "Home", ActionName = "Index", ControllerName = "App" });
+            menuItems.Add(new MenuItem() { LinkText = "About", ActionName = "About", ControllerName = "App" });
+            menuItems.Add(new MenuItem() { LinkText = "Contact", ActionName = "Contact", ControllerName = "App" });
+            menu.menuItems = menuItems;
+
+            return menu;
+        }
+
+
+
+
         public IActionResult Contact()
         {
             return View();
