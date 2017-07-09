@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,25 +15,38 @@ namespace TheWorld.Controllers.Api
     public class TripsController : Controller
     {
         private IWorldRepository _repo;
+        private ILogger _logger;
 
-        public TripsController(IWorldRepository repo)
+        public TripsController(IWorldRepository repo, ILogger<TripsController> logger)
         {
             _repo = repo;
+            _logger = logger;
         }
 
 
         [HttpGet("")]
         public IActionResult Get()
         {
-            return Ok(_repo.GetAllTrips());
+            var trips = _repo.GetAllTrips();
+            return Ok(Mapper.Map<IEnumerable<TripViewModel>>(trips));
         }  
         
         [HttpPost("")]
-        public IActionResult Post([FromBody]TripViewModel theTrip)
+        public async Task<IActionResult> Post([FromBody]TripViewModel theTrip)
         {
             if (ModelState.IsValid)
             {
-                return Created($"api/trip{theTrip.Name}", theTrip);
+                var newTrip = Mapper.Map<Trip>(theTrip);
+                _repo.AddTrip(newTrip);
+
+                if(await _repo.SaveChangesAsync())
+                {
+                    return Created($"api/trip/{theTrip.Name}", Mapper.Map<TripViewModel>(newTrip));
+                }
+                else
+                {
+                    return BadRequest("Unable to save trip");
+                }               
             }
 
             return BadRequest("Bad data.");

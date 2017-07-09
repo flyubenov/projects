@@ -15,9 +15,19 @@ namespace TheWorld.Models
             _context = context;
         }
 
+        public void AddTrip(Trip trip)
+        {
+            _context.Add(trip);
+        }
+
         public IEnumerable<Trip> GetAllTrips()
         {
             return _context.Trips.ToList();
+        }
+
+        public async Task<bool> SaveChangesAsync()
+        {
+            return (await _context.SaveChangesAsync()) > 0; 
         }
     }
 }

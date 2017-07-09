@@ -41,7 +41,7 @@ namespace TheWorld.Controllers.Web
             catch (Exception ex)
             {
                 _loger.LogError(ex.ToString());
-                return Redirect("/error  ");
+                return Redirect("/error ");
             }
 
 
